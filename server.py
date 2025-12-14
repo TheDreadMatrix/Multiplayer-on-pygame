@@ -50,8 +50,22 @@ class UPDServer(asyncio.DatagramProtocol):
                 p["y"] += p["dy"] * dt
 
                 
-                self.transport.sendto(json.dumps({"x": p["x"], "y": p["y"]}).encode(), addr)
-                #self.transport.sendto(json.dumps(self.players).encode())
+                all_players = [
+                {"ip": addr[0], "port": addr[1], "x": p["x"], "y": p["y"]}
+                for addr, p in self.players.items()
+            ]
+
+                self.transport.sendto(
+                    json.dumps({
+                        "players": all_players,
+                        "x": p["x"],
+                        "y": p["y"]
+                    }).encode(),
+                    addr
+    )
+
+             
+                
 
             await asyncio.sleep(1/60)
 

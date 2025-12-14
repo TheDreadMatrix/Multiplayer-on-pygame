@@ -8,6 +8,7 @@ class UPDClient(asyncio.DatagramProtocol):
     def __init__(self):
         self.transport = None
         self.running = True
+        self.players = []
 
         self.exc = None
         self.x = 0
@@ -27,10 +28,13 @@ class UPDClient(asyncio.DatagramProtocol):
 
 
     def datagram_received(self, data, addr):
-        json_coord = json.loads(data.decode())
-        self.x = json_coord["x"]
-        self.y = json_coord["y"]
+        json_response = json.loads(data.decode())
 
+        
+        self.x = json_response["x"]
+        self.y = json_response["y"]
+        self.players = json_response["players"]
+        
 
     def send_action(self, action: dict):
         if self.transport:
@@ -80,6 +84,10 @@ async def load_game(protocol):
        
        
         protocol.send_action(json.dumps(actions))
+
+
+        for player in protocol.players:
+            pg.draw.rect(screen, (255, 0, 0), (round(player["x"]), round(player["y"]), 100, 100), width=3)
 
         pg.draw.rect(screen, (255, 0, 0), (round(protocol.x), round(protocol.y), 100, 100), width=3)
 
